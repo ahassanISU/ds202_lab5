@@ -65,14 +65,37 @@ danger
 4)Create a map, and label each state with the most dangerous vehicle. Discuss the definition of the most dangerous vehicle, and what you find from the map. (Hint: Read the description for the STATE and COUNTY columns in the FARS manual. The state & county codes are Geographic Locator Codes (GLCs) from the General Services Administration’s (GSA) publication. Use readxl::read_xlsx to read in the GLCs.)
 ```{r}
 
-stateCodes <- readxl::read_xlsx("codes.xlsx")
-stateCodes<- stateCodes[, c("State Name", "State Code", "City Code", "City Name", "County Code", "County Name")]
+codes<- readxl::read_xlsx("codes.xlsx")
+codes <- codes[, c( "State Code", "County Code", "State Name","County Name")] %>%
+  rename("STATE" = "State Code") %>% 
+  rename("COUNTY" = "County Code")
+
+##codes
+codes$STATE <- as.numeric(codes$STATE)
+codes$COUNTY <- as.numeric(codes$COUNTY)
+
+#Main DataFrames for Map
+spatialDF <- acc[,c("STATE","COUNTY","LATITUDE", "LONGITUD")]
+masterDF<-full_join(codes, spatialDF, by = "COUNTY","STATE")
+masterDF<-masterDF %>% rename("STATE" = "STATE.x")
+
+spatialDF$STATE <- as.numeric(spatialDF$STATE)
+spatialDF$COUNTY <- as.numeric(spatialDF$COUNTY)
 
 
+tempDF<-col %>% 
+  group_by(STATE,COUNTY, MAKE) %>% 
+  summarize(n = n()) %>% 
+   group_by(STATE) %>%
+  filter(is.na(MAKE) == FALSE) %>%
+  filter(n == max(n)) %>% 
+  arrange(desc(n))
 
+masterDF<-full_join(masterDF, tempDF,by = "COUNTY","STATE")
+masterDF %>% drop_na()
+#Choropleth Map
 
-
-
+ggplot(masterDF, aes(x=masterDF$LONGITUD, y=masterDF$LATITUDE))+geom_polygon() #Check on how to get just Outlines for states, or need point for every county/city --> inner states.
 ```
 
 
