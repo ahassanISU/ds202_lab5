@@ -10,18 +10,20 @@ acc <- read.csv("https://raw.githubusercontent.com/xdaiISU/ds202materials/master
 acc
 pers <- read.csv("https://raw.githubusercontent.com/xdaiISU/ds202materials/master/hwlabs/fars2017/person.csv", stringsAsFactors = FALSE)
 pers
+library(tidyverse)
 make <- readr::read_csv("makeCodes.xls")%>%
   rename("STATE" = "Codes")
 make
 state <- readr::read_csv("stateCodes.xls") %>%
   rename("STATE" = "Codes")
 acc2 <- right_join(state, acc)
-acc3 <- right_join(make, acc2)
-acc3
-pers2 <- right_join(state, pers)
-pers3 <- right_join(make, pers2)
-pers3
-library(tidyverse)
+acc_final <- right_join(make, acc2)
+##acc_final <- right_join(day, acc3)
+acc_final
+pers2 <- right_join(make, pers)
+pers_final <- right_join(state, pers2)
+pers_final
+
 ```
 
 1. 
@@ -31,12 +33,12 @@ table(acc$DAY_WEEK)
 
 2.
 ```{r}
-hurt <- pers[pers$INJ_SEV == 4,]
+hurt <- pers_final[pers_final$INJ_SEV == 4,]
 hurt
 ```
 3.
 ```{r}
-col <- pers3[, c("INJ_SEV", "MAKE", "Make", "STATE","State")]
+col <- pers_final[, c("INJ_SEV", "MAKE", "Make", "STATE","State")]
 danger <- col %>%
   filter(INJ_SEV == 4) %>%
   group_by(STATE, State, MAKE, Make) %>%
@@ -54,7 +56,6 @@ codes <- codes[, c("State Name", "State Code", "County Code", "County Name")] %>
   rename("STATE" = "State Code")
 codes
 codes$STATE <- as.numeric(codes$STATE)
-codes<- right_join(codes, acc) 
-codes
+
 ```
 
