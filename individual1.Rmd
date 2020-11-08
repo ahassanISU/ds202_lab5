@@ -1,0 +1,43 @@
+---
+title: "individual1"
+author: "Rabsa Naseer"
+date: "11/6/2020"
+output: html_document
+---
+
+```{r}
+acc <- read.csv("https://raw.githubusercontent.com/xdaiISU/ds202materials/master/hwlabs/fars2017/accident.csv", stringsAsFactors = FALSE)
+pers <- read.csv("https://raw.githubusercontent.com/xdaiISU/ds202materials/master/hwlabs/fars2017/person.csv", stringsAsFactors = FALSE)
+make <- readr::read_csv("makeCodes.xls")
+state <- readr::read_csv("stateCodes.xls")
+library(tidyverse)
+```
+
+1. 
+```{r}
+table(acc$DAY_WEEK)
+```
+
+2.
+```{r}
+hurt <- pers[pers$INJ_SEV == 4,]
+hurt
+```
+3.
+```{r}
+col <- pers[, c("INJ_SEV", "MAKE", "STATE")]
+danger <- col %>%
+  filter(INJ_SEV == 4) %>%
+  group_by(STATE, MAKE) %>%
+  summarize(n = n()) %>%
+  group_by(STATE) %>%
+  filter(n == max(n)) %>%
+  filter(is.na(MAKE) == FALSE) %>%
+  arrange(desc(n))
+danger
+```
+4.
+```{r}
+
+```
+
