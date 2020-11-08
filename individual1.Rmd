@@ -7,22 +7,24 @@ output: html_document
 
 ```{r}
 acc <- read.csv("https://raw.githubusercontent.com/xdaiISU/ds202materials/master/hwlabs/fars2017/accident.csv", stringsAsFactors = FALSE)
-acc
+##acc
 pers <- read.csv("https://raw.githubusercontent.com/xdaiISU/ds202materials/master/hwlabs/fars2017/person.csv", stringsAsFactors = FALSE)
-pers
+##pers
 library(tidyverse)
 make <- readr::read_csv("makeCodes.xls")%>%
   rename("STATE" = "Codes")
-make
+##make
 state <- readr::read_csv("stateCodes.xls") %>%
   rename("STATE" = "Codes")
+day <- read.csv("dayCodes.csv")
+##day
 acc2 <- right_join(state, acc)
 acc_final <- right_join(make, acc2)
 ##acc_final <- right_join(day, acc3)
-acc_final
+##acc_final
 pers2 <- right_join(make, pers)
 pers_final <- right_join(state, pers2)
-pers_final
+##pers_final
 
 ```
 
@@ -34,7 +36,7 @@ table(acc$DAY_WEEK)
 2.
 ```{r}
 hurt <- pers_final[pers_final$INJ_SEV == 4,]
-hurt
+head(hurt)
 ```
 3.
 ```{r}
@@ -47,15 +49,24 @@ danger <- col %>%
   filter(n == max(n)) %>%
   filter(is.na(MAKE) == FALSE) %>%
   arrange(desc(n))
-danger
+head(danger)
 ```
 4.
 ```{r}
 codes<- readxl::read_xlsx("FRPP_GLC_-_United_StatesSep292020.xlsx")
 codes <- codes[, c("State Name", "State Code", "County Code", "County Name")] %>%
   rename("STATE" = "State Code")
-codes
+##codes
 codes$STATE <- as.numeric(codes$STATE)
+```
+5.
+```{r}
+combo <- right_join(pers_final, acc_final)
+##combo
+```
+6.
+```{r}
 
 ```
+
 
