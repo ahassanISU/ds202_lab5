@@ -36,14 +36,14 @@ hurt
 ```
 3.
 ```{r}
-col <- pers3[, c("INJ_SEV", "Make", "State")]
+col <- pers3[, c("INJ_SEV", "MAKE", "Make", "STATE","State")]
 danger <- col %>%
   filter(INJ_SEV == 4) %>%
-  group_by(State, Make) %>%
+  group_by(STATE, State, MAKE, Make) %>%
   summarize(n = n()) %>%
-  group_by(State) %>%
+  group_by(STATE) %>%
   filter(n == max(n)) %>%
-  filter(is.na(Make) == FALSE) %>%
+  filter(is.na(MAKE) == FALSE) %>%
   arrange(desc(n))
 danger
 ```
