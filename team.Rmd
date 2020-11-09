@@ -1,0 +1,49 @@
+---
+title: "team"
+author: "Rabsa Naseer"
+date: "11/9/2020"
+output: html_document
+---
+
+```{r}
+library(ggplot2)
+library(readxl)
+library(dplyr)
+library(tidyverse)
+library(lubridate)
+library(ggrepel)
+
+acc <- read.csv("https://raw.githubusercontent.com/xdaiISU/ds202materials/master/hwlabs/fars2017/accident.csv", stringsAsFactors = FALSE)
+pers  <- read.csv("https://raw.githubusercontent.com/xdaiISU/ds202materials/master/hwlabs/fars2017/person.csv", stringsAsFactors = FALSE)
+```
+
+```{r}
+make <- readr::read_csv("makeCodes.xls")%>%
+  rename("STATE" = "Codes")
+state <- readr::read_csv("stateCodes.xls") %>%
+  rename("STATE" = "Codes")
+
+##adding state and make label columns
+acc2 <- right_join(state, acc)
+acc_final <- right_join(make, acc2)
+pers2 <- right_join(make, pers)
+pers_final <- right_join(state, pers2)
+acc_final
+day <- readr::read_csv("dayCodes.csv")
+
+```
+
+1.
+```{r}
+acc_days <-merge(day, acc_final, by="DAY_WEEK")
+acc_days %>% group_by(Day) %>% 
+  summarise(total = length(Day)) %>%
+  arrange(desc(total))
+```
+According to the data, the weekend has the most accidents, Saturday with the highest number of accidents. Friday and Sunday have similar numbers of accidents.
+
+2.
+```{r}
+hurt <- pers_final[pers_final$INJ_SEV == 4,]
+```
+
