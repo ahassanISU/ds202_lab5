@@ -499,6 +499,62 @@ danger &lt;- col %&gt;%
 ## 4     1 Alabama      12 American Moters   138
 ## 5    18 Indiana      20 Buick/Opel        133
 ## 6    21 Kentucky     20 Oldsmobile        129</code></pre>
+<ol start="4" style="list-style-type: decimal">
+<li></li>
+<li></li>
+</ol>
+<pre class="r"><code>joinedTables &lt;- right_join(pers_final,acc_final)</code></pre>
+<pre><code>## Joining, by = c(&quot;STATE&quot;, &quot;State&quot;, &quot;Make&quot;, &quot;ST_CASE&quot;, &quot;VE_FORMS&quot;, &quot;COUNTY&quot;, &quot;DAY&quot;, &quot;MONTH&quot;, &quot;HOUR&quot;, &quot;MINUTE&quot;, &quot;RUR_URB&quot;, &quot;FUNC_SYS&quot;, &quot;HARM_EV&quot;, &quot;MAN_COLL&quot;, &quot;SCH_BUS&quot;)</code></pre>
+<ol start="6" style="list-style-type: decimal">
+<li></li>
+<li></li>
+<li></li>
+</ol>
+<pre class="r"><code>summer &lt;- joinedTables %&gt;%
+  filter((DAY &gt;= 20 &amp; MONTH &gt;= 6) &amp; (DAY &lt;= 22 &amp; MONTH &lt;= 9)) %&gt;%
+  filter(INJ_SEV == 4 | 3) %&gt;%
+  group_by(STATE, State) %&gt;%
+  summarize(n = n()) %&gt;%
+  group_by(STATE) %&gt;%
+  filter(n == max(n)) %&gt;%
+  arrange(desc(n))</code></pre>
+<pre><code>## `summarise()` regrouping output by &#39;STATE&#39; (override with `.groups` argument)</code></pre>
+<pre class="r"><code>head(summer)</code></pre>
+<pre><code>## # A tibble: 6 x 3
+## # Groups:   STATE [6]
+##   STATE State              n
+##   &lt;dbl&gt; &lt;chr&gt;          &lt;int&gt;
+## 1     6 California       325
+## 2    48 Texas            307
+## 3    12 Florida          212
+## 4    26 Michigan         127
+## 5    37 North Carolina   126
+## 6    13 Georgia          123</code></pre>
+<pre class="r"><code>winter &lt;- joinedTables %&gt;%
+  filter((DAY &gt;= 21 &amp; MONTH == 12) | (DAY &gt;= 1 &amp; MONTH &gt;= 1) &amp; (DAY &lt;= 1 &amp; MONTH &lt;= 3)) %&gt;%
+  filter(INJ_SEV == 4 | 3) %&gt;%
+  group_by(STATE, State) %&gt;%
+  summarize(n = n()) %&gt;%
+  group_by(STATE) %&gt;%
+  filter(n == max(n)) %&gt;%
+  arrange(desc(n))</code></pre>
+<pre><code>## `summarise()` regrouping output by &#39;STATE&#39; (override with `.groups` argument)</code></pre>
+<pre class="r"><code>head(winter)</code></pre>
+<pre><code>## # A tibble: 6 x 3
+## # Groups:   STATE [6]
+##   STATE State              n
+##   &lt;dbl&gt; &lt;chr&gt;          &lt;int&gt;
+## 1    12 Florida          392
+## 2     6 California       343
+## 3    48 Texas            317
+## 4    13 Georgia          160
+## 5     4 Arizona          121
+## 6    37 North Carolina   107</code></pre>
+<pre class="r"><code>sums &lt;- data.frame(&quot;Summer&quot; = sum(summer$n), &quot;Winter&quot; = sum(winter$n))
+sums</code></pre>
+<pre><code>##   Summer Winter
+## 1   3049   3233</code></pre>
+<p>Winter seems to have more dangerous than summer when considering the number of severe accidents and suspected serious injury accidents in total. The number of these two types of accidents in each state differ, but it seems in both seasons that larger states or states with higher populations have higher frequencies.</p>
 
 
 

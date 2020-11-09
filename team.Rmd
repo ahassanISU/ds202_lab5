@@ -62,3 +62,39 @@ danger <- col %>%
 head(danger)
 ```
 
+4.
+
+5.
+```{r}
+joinedTables <- right_join(pers_final,acc_final)
+```
+
+
+6.
+
+7.
+
+8.
+```{r}
+summer <- joinedTables %>%
+  filter((DAY >= 20 & MONTH >= 6) & (DAY <= 22 & MONTH <= 9)) %>%
+  filter(INJ_SEV == 4 | 3) %>%
+  group_by(STATE, State) %>%
+  summarize(n = n()) %>%
+  group_by(STATE) %>%
+  filter(n == max(n)) %>%
+  arrange(desc(n))
+head(summer)
+winter <- joinedTables %>%
+  filter((DAY >= 21 & MONTH == 12) | (DAY >= 1 & MONTH >= 1) & (DAY <= 1 & MONTH <= 3)) %>%
+  filter(INJ_SEV == 4 | 3) %>%
+  group_by(STATE, State) %>%
+  summarize(n = n()) %>%
+  group_by(STATE) %>%
+  filter(n == max(n)) %>%
+  arrange(desc(n))
+head(winter)
+sums <- data.frame("Summer" = sum(summer$n), "Winter" = sum(winter$n))
+sums
+```
+Winter seems to have more dangerous than summer when considering the number of severe accidents and suspected serious injury accidents in total. The number of these two types of accidents in each state differ, but it seems in both seasons that larger states or states with higher populations have higher frequencies.
