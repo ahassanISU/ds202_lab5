@@ -91,7 +91,9 @@ spatialDF<- spatialDF %>% group_by(STATE,COUNTY) %>% summarise(aveLong = (min(LO
 finalDF<- left_join(mainDF, spatialDF, by = c("STATE", "COUNTY"))
 
 states <- map_data('state')
-ggplot(states, aes(x=long, y=lat, group = group)) + geom_polygon(fill = "white", colour = "grey50")
+
+
+ggplot(states, aes(x=long, y=lat)) + geom_polygon(aes(group = group), fill = "white", colour = "grey50") + geom_text(data = finalDF, aes(x=aveLong, y= aveLat, label = Make)) +coord_cartesian(xlim=c(-130,-60), ylim =c(20,50))
 
 
 
