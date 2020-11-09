@@ -6,22 +6,27 @@ output: html_document
 ---
 
 ```{r}
+library(ggplot2)
+library(readxl)
+library(dplyr)
+library(tidyverse)
+library(lubridate)
+library(ggrepel)
+
 acc <- read.csv("https://raw.githubusercontent.com/xdaiISU/ds202materials/master/hwlabs/fars2017/accident.csv", stringsAsFactors = FALSE)
 ##acc
 pers <- read.csv("https://raw.githubusercontent.com/xdaiISU/ds202materials/master/hwlabs/fars2017/person.csv", stringsAsFactors = FALSE)
 ##pers
-library(tidyverse)
+
 make <- readr::read_csv("makeCodes.xls")%>%
   rename("STATE" = "Codes")
 ##make
 state <- readr::read_csv("stateCodes.xls") %>%
   rename("STATE" = "Codes")
-day <- read.csv("dayCodes.csv")
-##day
 acc2 <- right_join(state, acc)
 acc_final <- right_join(make, acc2)
 ##acc_final <- right_join(day, acc3)
-##acc_final
+acc_final
 pers2 <- right_join(make, pers)
 pers_final <- right_join(state, pers2)
 ##pers_final
@@ -30,7 +35,7 @@ pers_final <- right_join(state, pers2)
 
 1. 
 ```{r}
-table(acc$DAY_WEEK)
+table(acc_final$DAY_WEEK)
 ```
 
 2.
@@ -40,7 +45,7 @@ head(hurt)
 ```
 3.
 ```{r}
-col <- pers_final[, c("INJ_SEV", "MAKE", "Make", "STATE","State")]
+col <- pers_final[, c("INJ_SEV", "MAKE", "Make", "STATE","State", "COUNTY")]
 danger <- col %>%
   filter(INJ_SEV == 4) %>%
   group_by(STATE, State, MAKE, Make) %>%
@@ -55,9 +60,11 @@ head(danger)
 ```{r}
 codes<- readxl::read_xlsx("FRPP_GLC_-_United_StatesSep292020.xlsx")
 codes <- codes[, c("State Name", "State Code", "County Code", "County Name")] %>%
-  rename("STATE" = "State Code")
+  rename("STATE" = "State Code") %>%
+  rename("COUNTY" = "County Code")
 ##codes
-codes$STATE <- as.numeric(codes$STATE)
+codes$COUNTY <- as.numeric(codes$COUNTY)
+
 ```
 5.
 ```{r}
@@ -66,7 +73,26 @@ combo <- right_join(pers_final, acc_final)
 ```
 6.
 ```{r}
+combo <- combo %>%
+  group_by(DAY_WEEK) %>%
+  group_by(HOUR) %>%
+  group_by(SEX)
+head(combo)
 
+male <- subset(combo, SEX == 1)
+m_hour <- table(male$HOUR)
+m_hour
+m_day <- table(male$DAY_WEEK)
+m_day
+female <- subset(combo, SEX == 2)
+f_hour <- table(female$HOUR)
+f_hour
+f_day <- table(female$DAY_WEEK)
+f_day
 ```
 
+7.
+```{r}
+
+```
 
