@@ -97,37 +97,14 @@ ggplot(states, aes(x=long, y=lat)) + geom_polygon(aes(group = group), fill = "wh
 
 
 
-# codes <- codes[, c( "State Code", "County Code", "State Name","County Name")] %>%
-#   rename("STATE" = "State Code") %>% 
-#   rename("COUNTY" = "County Code")
 
-##codes
-# codes$STATE <- as.numeric(codes$STATE)
-# codes$COUNTY <- as.numeric(codes$COUNTY)
-# 
-# #Main DataFrames for Map
-# 
-# masterDF<-full_join(codes, spatialDF, by = "COUNTY","STATE")
-# masterDF<-masterDF %>% rename("STATE" = "STATE.x")
-
-#spatialDF$STATE <- as.numeric(spatialDF$STATE)
-#spatialDF$COUNTY <- as.numeric(spatialDF$COUNTY)
-
-
-
-
-
-
-#masterDF<-full_join(masterDF, tempDF,by = "COUNTY","STATE")
-#masterDF %>% drop_na()
-#Choropleth Map
 
 ```
 
 5)
 ```{r}
 
-joinedTables <- right_join(pers,acc)
+joinedTables <- full_join(acc,pers)
 
 ```
 6)
@@ -171,4 +148,57 @@ ggplot(f_day, aes(x=DAY_WEEK, y =n))+ geom_bar(stat = "identity") + labs(x="Day 
 
 
 
+```
+7)
+```{r}
+joinedTables %>% filter(INJ_SEV ==4)
+sevenDF<- joinedTables[,c("STATE","COUNTY","DOA")]
+sevenDF<- sevenDF %>% group_by(STATE,COUNTY) %>%
+  summarise(sumCount = sum(DOA))
+
+county <- map_data('county')
+county <-county[,c("group","order","long","lat")]
+colnames(county)[1] <- "STATE"
+colnames(county)[2] <- "COUNTY"
+
+lastDF<- right_join(sevenDF,county, by= "STATE")
+colnames(lastDF)[2] <- "COUNTY"
+lastDF$sumCount[is.na(lastDF$sumCount)] <- 0
+
+# 
+# lastDF %>% group_by(STATE,COUNTY) %>% 
+#     summarise(sumCount = sum(DOA))
+
+
+#make plot
+ggplot(lastDF, aes(x = long, y = lat, fill = lastDF$sumCount)) + 
+  geom_polygon() + 
+  geom_path(data = states, aes(x = long, y = lat, group = group), inherit.aes=FALSE, size=2, color='white')
+
+
+
+```
+
+8)
+```{r}
+summer <- joinedTables %>%
+  filter((DAY >= 20 & MONTH >= 6) & (DAY <= 22 & MONTH <= 9)) %>%
+  group_by(STATE, MAKE) %>%
+  summarize(n = n()) %>%
+  group_by(STATE) %>%
+  filter(n == max(n)) %>%
+  filter(is.na(MAKE) == FALSE) %>%
+  arrange(desc(n))
+summer
+winter <- joinedTables %>%
+  filter((DAY >= 21 & MONTH == 12) | (DAY >= 1 & MONTH >= 1) & (DAY <= 1 & MONTH <= 3)) %>%
+  group_by(STATE, MAKE) %>%
+  summarize(n = n()) %>%
+  group_by(STATE) %>%
+  filter(n == max(n)) %>%
+  filter(is.na(MAKE) == FALSE) %>%
+  arrange(desc(n))
+winter
+sums <- data.frame("Summer" = sum(summer$n), "Winter" = sum(winter$n))
+sums
 ```

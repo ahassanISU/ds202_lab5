@@ -1,6 +1,6 @@
 ---
 title: "team"
-author: "Rabsa Naseer"
+author: "Rabsa Naseer & Ahmed Hassan"
 date: "11/9/2020"
 output: html_document
 ---
@@ -63,6 +63,44 @@ head(danger)
 ```
 
 4.
+```{r}
+
+codes<- readxl::read_xlsx("codes.xlsx")
+makeCodes<- read.csv("makeCodes.csv")
+stateCodes<- read.csv('stateCodes.csv')
+colnames(stateCodes)[1] <- "STATE"
+colnames(stateCodes)[2] <- "State Name"
+
+
+tempDF<-col %>% 
+  group_by(STATE,COUNTY, MAKE) %>% 
+  summarize(n = n()) %>% 
+   group_by(STATE) %>%
+  filter(is.na(MAKE) == FALSE) %>%
+  filter(n == max(n)) %>% 
+  arrange(desc(n)) %>% 
+  rename("Codes" = "MAKE")
+
+mainDF<- left_join(tempDF, makeCodes, by ="Codes")
+
+mainDF<-left_join(mainDF, stateCodes, by ="STATE")
+
+#Get the average Lat and Long to position the labels nicely later
+spatialDF <- acc[,c("STATE","COUNTY","LATITUDE", "LONGITUD")]
+spatialDF<- spatialDF %>% group_by(STATE,COUNTY) %>% summarise(aveLong = (min(LONGITUD) + max(LONGITUD))/2, aveLat = (min(LATITUDE) + max(LATITUDE))/2)
+finalDF<- left_join(mainDF, spatialDF, by = c("STATE", "COUNTY"))
+
+states <- map_data('state')
+
+
+ggplot(states, aes(x=long, y=lat)) + geom_polygon(aes(group = group), fill = "white", colour = "grey50") + geom_text(data = finalDF, aes(x=aveLong, y= aveLat, label = Make)) +coord_cartesian(xlim=c(-130,-60), ylim =c(20,50))
+
+
+
+
+
+```
+
 
 5.
 ```{r}
@@ -71,8 +109,78 @@ joinedTables <- right_join(pers_final,acc_final)
 
 
 6.
+```{r}
+joinedTables <- joinedTables %>%
+  group_by(DAY_WEEK) %>%
+  group_by(HOUR) %>%
+  group_by(SEX)
+head(joinedTables)
+
+#Male Datasets & Plots
+male <- subset(joinedTables, SEX == 1)
+
+m_hour<- male %>% 
+  group_by(HOUR) %>% 
+  summarise(n =n()) 
+ggplot(m_hour, aes(x=HOUR, y =n))+ geom_bar(stat = "identity")+coord_cartesian(xlim=c(0,25))+ labs(x="Hour of Day", y = "Number of male Accidents",
+       title = "Accidents vs Hour of the Day (MALE)")
+
+m_day<- male %>% 
+  group_by(DAY_WEEK) %>% 
+  summarise(n =n())
+ggplot(m_day, aes(x=DAY_WEEK, y =n))+ geom_bar(stat = "identity") + labs(x="Day of the Week", y = "Number of male Accidents",
+       title = "Accidents vs Day of the Week (MALE)")
+  
+#Female Datasets & Plots
+female <- subset(joinedTables, SEX == 2)
+f_hour<- female %>% 
+  group_by(HOUR) %>% 
+  summarise(n =n())
+ggplot(f_hour, aes(x=HOUR, y =n))+ geom_bar(stat = "identity")+coord_cartesian(xlim=c(0,24)) + labs(x="Hour of Day", y = "Number of female Accidents",
+       title = "Accidents vs Hour of the Day (FEMALE)")
+
+
+f_day<- female %>% 
+  group_by(DAY_WEEK) %>% 
+  summarise(n =n())
+ggplot(f_day, aes(x=DAY_WEEK, y =n))+ geom_bar(stat = "identity") + labs(x="Day of the Week", y = "Number of female Accidents",
+       title = "Accidents vs Day of the Week (FEMALE)")
+  
+
+
+
+```
+
 
 7.
+```{r}
+joinedTables %>% filter(INJ_SEV ==4)
+sevenDF<- joinedTables[,c("STATE","COUNTY","DOA")]
+sevenDF<- sevenDF %>% group_by(STATE,COUNTY) %>%
+  summarise(sumCount = sum(DOA))
+
+county <- map_data('county')
+county <-county[,c("group","order","long","lat")]
+colnames(county)[1] <- "STATE"
+colnames(county)[2] <- "COUNTY"
+
+lastDF<- right_join(sevenDF,county, by= "STATE")
+colnames(lastDF)[2] <- "COUNTY"
+lastDF$sumCount[is.na(lastDF$sumCount)] <- 0
+
+# 
+# lastDF %>% group_by(STATE,COUNTY) %>% 
+#     summarise(sumCount = sum(DOA))
+
+
+#make plot
+ggplot(lastDF, aes(x = long, y = lat, fill = lastDF$sumCount)) + 
+  geom_polygon() + 
+  geom_path(data = states, aes(x = long, y = lat, group = group), inherit.aes=FALSE, size=2, color='white')
+
+
+
+```
 
 8.
 ```{r}
