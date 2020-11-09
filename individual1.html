@@ -620,7 +620,62 @@ f_day</code></pre>
 ## 4478 3503 3465 3496 3724 4536 4947</code></pre>
 <ol start="7" style="list-style-type: decimal">
 <li></li>
+<li></li>
 </ol>
+<pre class="r"><code>summer &lt;- combo %&gt;%
+  filter((DAY &gt;= 20 &amp; MONTH &gt;= 6) &amp; (DAY &lt;= 22 &amp; MONTH &lt;= 9)) %&gt;%
+  group_by(STATE, State, MAKE, Make) %&gt;%
+  summarize(n = n()) %&gt;%
+  group_by(STATE) %&gt;%
+  filter(n == max(n)) %&gt;%
+  filter(is.na(MAKE) == FALSE) %&gt;%
+  arrange(desc(n))</code></pre>
+<pre><code>## `summarise()` regrouping output by &#39;STATE&#39;, &#39;State&#39;, &#39;MAKE&#39; (override with `.groups` argument)</code></pre>
+<pre class="r"><code>summer</code></pre>
+<pre><code>## # A tibble: 48 x 5
+## # Groups:   STATE [45]
+##    STATE State           MAKE Make                n
+##    &lt;dbl&gt; &lt;chr&gt;          &lt;int&gt; &lt;chr&gt;           &lt;int&gt;
+##  1     6 California        49 Chrysler           49
+##  2    48 Texas             20 Subaru             49
+##  3    37 North Carolina    20 Honda              28
+##  4    12 Florida           49 Ford               26
+##  5    26 Michigan          20 Coda               24
+##  6    13 Georgia           12 Lincoln            22
+##  7    28 Mississippi       20 &lt;NA&gt;               20
+##  8    18 Indiana           20 Buick/Opel         16
+##  9     1 Alabama           20 American Moters    15
+## 10     8 Colorado          20 Imperial           15
+## # ... with 38 more rows</code></pre>
+<pre class="r"><code>winter &lt;- combo %&gt;%
+  filter((DAY &gt;= 21 &amp; MONTH == 12) | (DAY &gt;= 1 &amp; MONTH &gt;= 1) &amp; (DAY &lt;= 1 &amp; MONTH &lt;= 3)) %&gt;%
+  group_by(STATE, State, MAKE, Make) %&gt;%
+  summarize(n = n()) %&gt;%
+  group_by(STATE) %&gt;%
+  filter(n == max(n)) %&gt;%
+  filter(is.na(MAKE) == FALSE) %&gt;%
+  arrange(desc(n))</code></pre>
+<pre><code>## `summarise()` regrouping output by &#39;STATE&#39;, &#39;State&#39;, &#39;MAKE&#39; (override with `.groups` argument)</code></pre>
+<pre class="r"><code>winter</code></pre>
+<pre><code>## # A tibble: 56 x 5
+## # Groups:   STATE [48]
+##    STATE State           MAKE Make               n
+##    &lt;dbl&gt; &lt;chr&gt;          &lt;int&gt; &lt;chr&gt;          &lt;int&gt;
+##  1    48 Texas             20 Subaru            65
+##  2    12 Florida           12 Ford              48
+##  3    12 Florida           49 Ford              48
+##  4    13 Georgia           12 Lincoln           39
+##  5    29 Missouri          20 Other Domestic    27
+##  6    37 North Carolina    12 Honda             24
+##  7     4 Arizona           12 &lt;NA&gt;              20
+##  8    55 Wisconsin         20 Hyundai           20
+##  9    47 Tennessee         12 Saab              18
+## 10    45 South Carolina    12 Porsche           17
+## # ... with 46 more rows</code></pre>
+<pre class="r"><code>sums &lt;- data.frame(&quot;Summer&quot; = sum(summer$n), &quot;Winter&quot; = sum(winter$n))
+sums</code></pre>
+<pre><code>##   Summer Winter
+## 1    555    657</code></pre>
 
 
 

@@ -96,3 +96,27 @@ f_day
 
 ```
 
+8.
+```{r}
+summer <- combo %>%
+  filter((DAY >= 20 & MONTH >= 6) & (DAY <= 22 & MONTH <= 9)) %>%
+  group_by(STATE, State, MAKE, Make) %>%
+  summarize(n = n()) %>%
+  group_by(STATE) %>%
+  filter(n == max(n)) %>%
+  filter(is.na(MAKE) == FALSE) %>%
+  arrange(desc(n))
+summer
+winter <- combo %>%
+  filter((DAY >= 21 & MONTH == 12) | (DAY >= 1 & MONTH >= 1) & (DAY <= 1 & MONTH <= 3)) %>%
+  group_by(STATE, State, MAKE, Make) %>%
+  summarize(n = n()) %>%
+  group_by(STATE) %>%
+  filter(n == max(n)) %>%
+  filter(is.na(MAKE) == FALSE) %>%
+  arrange(desc(n))
+winter
+sums <- data.frame("Summer" = sum(summer$n), "Winter" = sum(winter$n))
+sums
+```
+
