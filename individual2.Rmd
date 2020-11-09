@@ -124,5 +124,51 @@ ggplot(states, aes(x=long, y=lat)) + geom_polygon(aes(group = group), fill = "wh
 
 ```
 
+5)
+```{r}
+
+joinedTables <- right_join(pers,acc)
+
+```
+6)
+```{r}
+joinedTables <- joinedTables %>%
+  group_by(DAY_WEEK) %>%
+  group_by(HOUR) %>%
+  group_by(SEX)
+head(joinedTables)
+
+#Male Datasets & Plots
+male <- subset(joinedTables, SEX == 1)
+
+m_hour<- male %>% 
+  group_by(HOUR) %>% 
+  summarise(n =n()) 
+ggplot(m_hour, aes(x=HOUR, y =n))+ geom_bar(stat = "identity")+coord_cartesian(xlim=c(0,25))+ labs(x="Hour of Day", y = "Number of male Accidents",
+       title = "Accidents vs Hour of the Day (MALE)")
+
+m_day<- male %>% 
+  group_by(DAY_WEEK) %>% 
+  summarise(n =n())
+ggplot(m_day, aes(x=DAY_WEEK, y =n))+ geom_bar(stat = "identity") + labs(x="Day of the Week", y = "Number of male Accidents",
+       title = "Accidents vs Day of the Week (MALE)")
+  
+#Female Datasets & Plots
+female <- subset(joinedTables, SEX == 2)
+f_hour<- female %>% 
+  group_by(HOUR) %>% 
+  summarise(n =n())
+ggplot(f_hour, aes(x=HOUR, y =n))+ geom_bar(stat = "identity")+coord_cartesian(xlim=c(0,24)) + labs(x="Hour of Day", y = "Number of female Accidents",
+       title = "Accidents vs Hour of the Day (FEMALE)")
 
 
+f_day<- female %>% 
+  group_by(DAY_WEEK) %>% 
+  summarise(n =n())
+ggplot(f_day, aes(x=DAY_WEEK, y =n))+ geom_bar(stat = "identity") + labs(x="Day of the Week", y = "Number of female Accidents",
+       title = "Accidents vs Day of the Week (FEMALE)")
+  
+
+
+
+```
