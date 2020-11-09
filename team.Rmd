@@ -35,6 +35,7 @@ day <- readr::read_csv("dayCodes.csv")
 
 1.
 ```{r}
+##Adding day names column
 acc_days <-merge(day, acc_final, by="DAY_WEEK")
 acc_days %>% group_by(Day) %>% 
   summarise(total = length(Day)) %>%
@@ -45,5 +46,19 @@ According to the data, the weekend has the most accidents, Saturday with the hig
 2.
 ```{r}
 hurt <- pers_final[pers_final$INJ_SEV == 4,]
+```
+
+3.
+```{r}
+col <- pers_final[, c("INJ_SEV", "MAKE", "Make", "STATE","State", "COUNTY")]
+danger <- col %>%
+  filter(INJ_SEV == 4) %>%
+  group_by(STATE, State, MAKE, Make) %>%
+  summarize(n = n()) %>%
+  group_by(STATE) %>%
+  filter(n == max(n)) %>%
+  filter(is.na(MAKE) == FALSE) %>%
+  arrange(desc(n))
+head(danger)
 ```
 

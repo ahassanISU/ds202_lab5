@@ -454,7 +454,8 @@ acc2 &lt;- right_join(state, acc)</code></pre>
 <ol style="list-style-type: decimal">
 <li></li>
 </ol>
-<pre class="r"><code>acc_days &lt;-merge(day, acc_final, by=&quot;DAY_WEEK&quot;)
+<pre class="r"><code>##Adding day names column
+acc_days &lt;-merge(day, acc_final, by=&quot;DAY_WEEK&quot;)
 acc_days %&gt;% group_by(Day) %&gt;% 
   summarise(total = length(Day)) %&gt;%
   arrange(desc(total))</code></pre>
@@ -474,6 +475,30 @@ acc_days %&gt;% group_by(Day) %&gt;%
 <li></li>
 </ol>
 <pre class="r"><code>hurt &lt;- pers_final[pers_final$INJ_SEV == 4,]</code></pre>
+<ol start="3" style="list-style-type: decimal">
+<li></li>
+</ol>
+<pre class="r"><code>col &lt;- pers_final[, c(&quot;INJ_SEV&quot;, &quot;MAKE&quot;, &quot;Make&quot;, &quot;STATE&quot;,&quot;State&quot;, &quot;COUNTY&quot;)]
+danger &lt;- col %&gt;%
+  filter(INJ_SEV == 4) %&gt;%
+  group_by(STATE, State, MAKE, Make) %&gt;%
+  summarize(n = n()) %&gt;%
+  group_by(STATE) %&gt;%
+  filter(n == max(n)) %&gt;%
+  filter(is.na(MAKE) == FALSE) %&gt;%
+  arrange(desc(n))</code></pre>
+<pre><code>## `summarise()` regrouping output by &#39;STATE&#39;, &#39;State&#39;, &#39;MAKE&#39; (override with `.groups` argument)</code></pre>
+<pre class="r"><code>head(danger)</code></pre>
+<pre><code>## # A tibble: 6 x 5
+## # Groups:   STATE [6]
+##   STATE State      MAKE Make                n
+##   &lt;dbl&gt; &lt;chr&gt;     &lt;int&gt; &lt;chr&gt;           &lt;int&gt;
+## 1    39 Ohio         20 Jaguar            179
+## 2    29 Missouri     20 Other Domestic    164
+## 3    47 Tennessee    20 Saab              147
+## 4     1 Alabama      12 American Moters   138
+## 5    18 Indiana      20 Buick/Opel        133
+## 6    21 Kentucky     20 Oldsmobile        129</code></pre>
 
 
 
