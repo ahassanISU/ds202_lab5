@@ -25,8 +25,7 @@ state <- readr::read_csv("stateCodes.xls") %>%
   rename("STATE" = "Codes")
 acc2 <- right_join(state, acc)
 acc_final <- right_join(make, acc2)
-##acc_final <- right_join(day, acc3)
-acc_final
+##acc_final
 pers2 <- right_join(make, pers)
 pers_final <- right_join(state, pers2)
 ##pers_final
