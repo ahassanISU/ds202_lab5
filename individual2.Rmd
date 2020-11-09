@@ -66,21 +66,10 @@ danger
 ```{r}
 
 codes<- readxl::read_xlsx("codes.xlsx")
-codes <- codes[, c( "State Code", "County Code", "State Name","County Name")] %>%
-  rename("STATE" = "State Code") %>% 
-  rename("COUNTY" = "County Code")
-
-##codes
-codes$STATE <- as.numeric(codes$STATE)
-codes$COUNTY <- as.numeric(codes$COUNTY)
-
-#Main DataFrames for Map
-spatialDF <- acc[,c("STATE","COUNTY","LATITUDE", "LONGITUD")]
-masterDF<-full_join(codes, spatialDF, by = "COUNTY","STATE")
-masterDF<-masterDF %>% rename("STATE" = "STATE.x")
-
-spatialDF$STATE <- as.numeric(spatialDF$STATE)
-spatialDF$COUNTY <- as.numeric(spatialDF$COUNTY)
+makeCodes<- read.csv("makeCodes.csv")
+stateCodes<- read.csv('stateCodes.csv')
+colnames(stateCodes)[1] <- "STATE"
+colnames(stateCodes)[2] <- "State Name"
 
 
 tempDF<-col %>% 
@@ -89,13 +78,48 @@ tempDF<-col %>%
    group_by(STATE) %>%
   filter(is.na(MAKE) == FALSE) %>%
   filter(n == max(n)) %>% 
-  arrange(desc(n))
+  arrange(desc(n)) %>% 
+  rename("Codes" = "MAKE")
 
-masterDF<-full_join(masterDF, tempDF,by = "COUNTY","STATE")
-masterDF %>% drop_na()
+mainDF<- left_join(tempDF, makeCodes, by ="Codes")
+
+mainDF<-left_join(mainDF, stateCodes, by ="STATE")
+
+#Get the average Lat and Long to position the labels nicely later
+spatialDF <- acc[,c("STATE","COUNTY","LATITUDE", "LONGITUD")]
+spatialDF<- spatialDF %>% group_by(STATE,COUNTY) %>% summarise(aveLong = (min(LONGITUD) + max(LONGITUD))/2, aveLat = (min(LATITUDE) + max(LATITUDE))/2)
+finalDF<- left_join(mainDF, spatialDF, by = c("STATE", "COUNTY"))
+
+states <- map_data('state')
+ggplot(states, aes(x=long, y=lat, group = group)) + geom_polygon(fill = "white", colour = "grey50")
+
+
+
+# codes <- codes[, c( "State Code", "County Code", "State Name","County Name")] %>%
+#   rename("STATE" = "State Code") %>% 
+#   rename("COUNTY" = "County Code")
+
+##codes
+# codes$STATE <- as.numeric(codes$STATE)
+# codes$COUNTY <- as.numeric(codes$COUNTY)
+# 
+# #Main DataFrames for Map
+# 
+# masterDF<-full_join(codes, spatialDF, by = "COUNTY","STATE")
+# masterDF<-masterDF %>% rename("STATE" = "STATE.x")
+
+#spatialDF$STATE <- as.numeric(spatialDF$STATE)
+#spatialDF$COUNTY <- as.numeric(spatialDF$COUNTY)
+
+
+
+
+
+
+#masterDF<-full_join(masterDF, tempDF,by = "COUNTY","STATE")
+#masterDF %>% drop_na()
 #Choropleth Map
 
-ggplot(masterDF, aes(x=masterDF$LONGITUD, y=masterDF$LATITUDE))+geom_polygon() #Check on how to get just Outlines for states, or need point for every county/city --> inner states.
 ```
 
 
